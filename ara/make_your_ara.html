@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Make Your Ara</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: 'Roboto', Monospace;
+                font-size:14px;
+                font-weight:400; 
+                text-decoration:none;
+				margin: 0px;
+				overflow: hidden;
+			}    
+            
+/*
+            a:link {text-decoration:none;
+                    color: 0xffffff;}  
+            
+            a:hover {text-decoration: underline;}
+*/
+            
+            .headerLink { color: rgba(0,0,0,0.4); text-decoration:none;}
+            .headerLink:hover { color: black; text-decoration: underline;}
+            .headerLink:active { color: white; }
+            .headerLink:visited { color: black; }
+         
+            
+            #blocker {
+                font-family: 'Monoton', cursive;
+
+                font-size:20px;
+                font-weight:500; 
+
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(255,255,255,0.4);
+
+			}
+            
+            #instructions {
+
+				width: 100%;
+				height: 100%;
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				color: rgba(0,0,0,0.7);
+				text-align: center;
+
+				cursor: pointer;
+
+			}
+            
+            #subtitle {
+                font-family: 'Roboto', Monospace;   
+                font-size:20px;
+                font-weight:100; 
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				color: #ffffff;
+				text-align: center;
+
+				cursor: pointer;
+
+            }
+
+		</style>
+	</head>
+	<body>
+
+		<script src="../build/three.min.js"></script>
+
+		<script src="js/libs/stats.min.js"></script>
+		<script src="js/libs/tween.min.js"></script>
+        <script src="js/libs/THREEx.screenshot.js"></script>
+       
+        
+        <!-- load the font files -->
+
+		<script src="fonts/gentilis_bold.typeface.js"></script>
+		<script src="fonts/gentilis_regular.typeface.js"></script>
+		<script src="fonts/optimer_bold.typeface.js"></script>
+		<script src="fonts/optimer_regular.typeface.js"></script>
+		<script src="fonts/helvetiker_bold.typeface.js"></script>
+		<script src="fonts/helvetiker_regular.typeface.js"></script>
+		<script src="fonts/droid/droid_sans_regular.typeface.js"></script>
+		<script src="fonts/droid/droid_sans_bold.typeface.js"></script>
+		<script src="fonts/droid/droid_serif_regular.typeface.js"></script>
+		<script src="fonts/droid/droid_serif_bold.typeface.js"></script>
+        <script src="http://mrdoob.github.com/three.js/examples/fonts/helvetiker_regular.typeface.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Roboto:100,500,900' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Monoton' rel='stylesheet' type='text/css'>
+
+		<!-- todo async loader for fonts -->
+        
+        <div id="blocker">
+
+			<div id="instructions">
+				<span style="font-size:40px">Make Your Ara</span>
+                <br>              
+                <span style="font-size:20px; width:100px; font-family: 'Roboto', Monospace; font-weight:100;">
+				(hit color cubes to build, r=reset, n=random)
+                </span>
+	
+                </div>				
+			</div>     
+		</div>
+       
+
+		<script>
+			var container, stats;
+			var camera, scene, projector, renderer;
+            var isHit;
+            var group;
+            var scene_text, camera_t;
+            var reset = false;
+            var doneRemove = false;
+            var random = false;
+            var idHit;
+            var colorHit;
+            var hObject;
+    
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				var info = document.createElement( 'div' );
+				info.style.position = 'absolute';
+				info.style.top = '10px';
+				info.style.width = '98%';
+				info.style.textAlign = 'right';
+				info.innerHTML = 'Project Ara <a class = "headerLink" href="http://www.projectara.com/agenda/" target="_blank">Developer Conference</a> | Apr 15-16 2014';
+				container.appendChild( info );
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.y = 300;
+				camera.position.z = 500;
+
+				scene = new THREE.Scene();
+                group = new THREE.Object3D();// for ara block 
+
+				var geometry = new THREE.BoxGeometry( 20, 20, 20 );
+                var geometry_a = new THREE.BoxGeometry( 40, 40, 30 );
+                
+                for ( var i = 0; i < 10; i ++ ) {
+
+					var object = new THREE.Mesh( geometry_a, new THREE.MeshBasicMaterial( {  color: Math.random() * 0xffffff, opacity: 0.9} ) );
+                    hObject = object;
+                    
+                    console.log('color: r'+ hObject.material.color.r);
+					object.position.x = Math.random() * 800 - 400;
+					object.position.y = Math.random() * 800 - 400;
+					object.position.z = Math.random() * 800 - 400;
+					object.scale.x = Math.random() * 2 + 1;
+					object.scale.y = Math.random() * 2 + 1;
+					object.scale.z = Math.random() * 2 + 1;
+					object.rotation.x = Math.random() * 2 * Math.PI;
+					object.rotation.y = Math.random() * 2 * Math.PI;
+					object.rotation.z = Math.random() * 2 * Math.PI;
+                    console.log(object.id);
+					scene.add( object );
+
+				}
+                
+
+				for ( var i = 30; i < 90; i ++ ) {
+
+					var object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.3 }) );
+					object.position.x = Math.random() * 800 - 400;
+					object.position.y = Math.random() * 800 - 400;
+					object.position.z = Math.random() * 800 - 400;
+					object.scale.x = Math.random() * 2 + 1;
+					object.scale.y = Math.random() * 2 + 1;
+					object.scale.z = Math.random() * 2 + 1;
+					object.rotation.x = Math.random() * 2 * Math.PI;
+					object.rotation.y = Math.random() * 2 * Math.PI;
+					object.rotation.z = Math.random() * 2 * Math.PI;
+                    console.log(object.id);
+					scene.add( object );
+
+				}
+                
+       
+				projector = new THREE.Projector();
+				renderer = new THREE.CanvasRenderer();
+				renderer.setClearColor( 0xf0f0f0 );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.appendChild(renderer.domElement);
+
+                /* debbuging stats
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
+
+                */
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				window.addEventListener( 'resize', onWindowResize, false );
+                document.addEventListener( 'keydown', onKeyDown, false );
+                
+//                var renderer   = new THREE.WebGLRenderer({
+//                  preserveDrawingBuffer   : true   // required to support .toDataURL()
+//                });
+                //var context = canvas.getContext("experimental-webgl", {preserveDrawingBuffer: true});
+                //THREEx.Screenshot.bindKey(renderer); // for screen shot
+                //var dataUrl = renderer.domElement.toDataURL("image/png");
+                //renderer.canvas.toDataURL("image/png");
+
+			}
+            
+           function onKeyDown(event) {
+
+            console.log(event.keyCode);
+            switch ( event.keyCode ) {
+
+                case 82: // r
+                    reset = true;
+                    break;
+
+                case 78: // n
+                    //random = true;
+                    createAraBrick(true);
+                    break;
+//
+//                case 32: // space
+//                    if ( canJump === true ) velocity.y += 10;
+//                    canJump = false;
+//                    break;
+
+            }
+           };
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseDown( event ) {
+                
+
+				event.preventDefault();
+
+				var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
+				projector.unprojectVector( vector, camera );
+
+				var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+				var intersects = raycaster.intersectObjects( scene.children );
+
+				if ( intersects.length > 0 ) {
+                    
+                    console.log(intersects[ 0 ].object.id);
+                    new TWEEN.Tween( intersects[ 0 ].object.position ).to( {
+						x: Math.random() * 800 - 400,
+						y: Math.random() * 800 - 400,
+						z: Math.random() * 800 - 400 }, 2000 )
+					.easing( TWEEN.Easing.Elastic.Out).start();
+
+					new TWEEN.Tween( intersects[ 0 ].object.rotation ).to( {
+						x: Math.random() * 2 * Math.PI,
+						y: Math.random() * 2 * Math.PI,
+						z: Math.random() * 2 * Math.PI }, 2000 )
+					.easing( TWEEN.Easing.Elastic.Out).start();
+
+				}
+
+				
+//				// Parse all the faces
+//				for ( var i in intersects ) {
+//
+//					intersects[ i ].face.material[ 0 ].color.setHex( Math.random() * 0xffffff | 0x80000000 );
+//
+//				}
+                
+                
+                if (intersects[0].object.id < 14 && intersects[0].object.id > 3){
+                    console.log("hit color brick");
+                    idHit = intersects[0].object.id;
+                    var tempMat= intersects[0].object.material;
+                    colorHit=tempMat.color;
+                    //console.log("color= r="+colorHit.r);
+                    isHit = true;
+                	
+                }
+				
+			}
+
+			//
+            
+            var dis = 70;
+            var word_i = 0;
+    
+            
+            function createText() {
+                
+              var wordAra = 'ARA';
+              var wordPrj = '';             
+              var ranNum = Math.floor(Math.random()*100+1);
+              console.log("num"+ranNum);
+              var shape = new THREE.TextGeometry(wordAra, {font: 'helvetiker'});
+              var wrapper = new THREE.MeshNormalMaterial({color: 0x00ff00});
+              var words = new THREE.Mesh(shape, wrapper);
+                
+              words.position.set(word_i*dis, -100, ranNum);
+              scene.add(words);
+              word_i = word_i + 1;
+            }
+            
+           function removeEntity(object) {
+               var obj, i;
+                for (i = scene.children.length-1; i>= 0 ; i--) {
+                    obj = scene.children[i];
+                    
+                    console.log('objname:'+obj);
+                    if (obj == group) {
+                        console.log('obj group');
+                        scene.remove(obj);
+                        doneRemove = true;
+                    }
+                }
+                
+            }  
+            
+            var x_dist = 0;
+            var y_dist = 0;
+            
+            function createAraBrick(random) {
+                                                  
+                var geometry = new THREE.BoxGeometry( 100, 100, 60 );
+                
+                if (random) {
+                    var material = new THREE.MeshNormalMaterial  ( { overdraw: 0.5} );
+                } else {
+                    var myColor = new THREE.Color(colorHit.r,colorHit.g,colorHit.b);
+                    myColor.offsetHSL(0,0.2,0.1);
+                    var material = new THREE.MeshBasicMaterial( { color: myColor } );       
+                }
+                
+                //myColor.set(colorHit.getHSL);
+                //myColor.offsetHSL(0.5,0,0);
+                //.setHSL(colorHit.h,colorHit.s,colorHit.l);
+                              
+                
+                if (doneRemove){
+                    console.log("reset group object");
+                    // reset group object
+                    if (group){
+                        //delete group;
+                        console.log("delete group object");
+                        group = new THREE.Object3D();  
+                        doneRemove = false; //
+                       
+                        x_dist = 0;
+                        y_dist = 0;
+                       
+                    }
+                }
+                    
+                //group = new THREE.Object3D();
+                
+                if (random) {              
+                    console.log("create randome bricks");
+                    num = Math.floor(Math.random() *100);
+                    console.log("random num block="+num);
+                    
+                    for ( var i = 0; i < num; i ++ ) {
+                        var mesh = new THREE.Mesh( geometry, material );
+    //					mesh.position.x = Math.random() * 2000 - 1000;
+    //					mesh.position.y = Math.random() * 2000 - 1000;
+    //					mesh.position.z = Math.random() * 2000 - 1000;
+    //					mesh.rotation.x = Math.random() * 2 * Math.PI;
+    //					mesh.rotation.y = Math.random() * 2 * Math.PI;
+                        mesh.position.x = -200 + x_dist;
+                        mesh.position.y = -400 + y_dist;
+                        mesh.position.z = 0;
+                        mesh.matrixAutoUpdate = false;
+                        mesh.updateMatrix();
+                        group.add(mesh);
+                        
+                      //  scene.add( group );
+                        x_dist = x_dist + 100;
+
+                        if (x_dist > 300){
+                            group.remove(mesh);
+                            //x_dist = 0;
+                            x_dist = (Math.random() * 1000) % 100;
+                            //x_dist = x_dist * (Math.random() * 1000 % 2);
+                            y_dist = y_dist + 100;
+                        }     
+
+                        if (y_dist > 500){
+                            group.remove(mesh);
+                            y_dist = y_dist + 100;
+                            //x_dist = (Math.random() * 1000) % 100;
+                            //x_dist = x_dist * (Math.random() * 1000 % 2);
+                            //y_dist = y_dist + 100;
+                        }  
+
+                    }
+                    
+                    scene.add( group );                   
+                    random = false;
+                    //Math.random() * 2 * Math.PI
+                     new TWEEN.Tween(group.scale).to( {
+						x: Math.random() * 0.5 * Math.PI,
+						y: Math.random() * 0.5 * Math.PI,
+						z: Math.random() * 0.5 * Math.PI}, 2000 )
+					.easing( TWEEN.Easing.Elastic.Out).start();
+                    
+                    
+                } else {
+                
+					var mesh = new THREE.Mesh( geometry, material );
+                    var fakeobj = new THREE.Object3D();
+//					mesh.position.x = Math.random() * 2000 - 1000;
+//					mesh.position.y = Math.random() * 2000 - 1000;
+//					mesh.position.z = Math.random() * 2000 - 1000;
+//					mesh.rotation.x = Math.random() * 2 * Math.PI;
+//					mesh.rotation.y = Math.random() * 2 * Math.PI;
+                    //fakeobj.scale.x = 0.3;
+                    //fakeobj.scale.y = 0.3;
+                    //fakeobj.scale.z = 0.3;
+                    mesh.position.x = -200 + x_dist;
+					mesh.position.y = -400 + y_dist;
+					mesh.position.z = 0;
+                    fakeobj.scale.x = 0.3;
+                    fakeobj.scale.y = 0.3;
+                    fakeobj.scale.z = 0.3;
+					mesh.matrixAutoUpdate = false;
+					mesh.updateMatrix();
+                    fakeobj.add(mesh);
+					group.add(fakeobj);
+
+                    scene.add(group);                       
+                    x_dist = x_dist + 100;
+
+                    if (x_dist > 300){
+                        group.remove(mesh);
+                        x_dist = 0;
+                        //x_dist = (Math.random() * 1000) % 100;
+                        //x_dist = x_dist * (Math.random() * 1000 % 2);
+                        y_dist = y_dist + 100;
+                    }     
+
+                    if (y_dist > 500){
+                        group.remove(mesh);
+                        y_dist = y_dist + 100;
+                        //x_dist = (Math.random() * 1000) % 100;
+                        //x_dist = x_dist * (Math.random() * 1000 % 2);
+                        //y_dist = y_dist + 100;
+                    }
+                    
+                    
+                    console.log('ms'+mesh.scale.x);
+
+                    
+                    new TWEEN.Tween(fakeobj.scale).to( {
+						x: 1.0,
+						y: 1.0,
+						z: 1.0 }, 2000 )
+					.easing( TWEEN.Easing.Elastic.Out).start();
+//                    
+                }
+//                    new TWEEN.Tween(mesh.scale).to( {
+//						x: Math.random() * 2 * 4000,
+//						y: Math.random() * 2 * 4000,
+//						z: Math.random() * 2 * 4000 }, 2000 )
+//					.easing( TWEEN.Easing.Elastic.Out).start();
+////                    
+//                }
+                    
+            }
+            
+    
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
+				//stats.update();
+			}
+
+			var radius = 600;
+			var theta = 0;
+
+			function render() {
+                
+
+				TWEEN.update();
+                
+                if (reset){
+                    removeEntity(group);
+                    reset = false;
+                }
+                    
+                    //scene.removeAll();
+                    //group.remove(mesh);
+                
+                theta += 0.1;
+                
+        		if (isHit) {
+                    //createText();  
+                    createAraBrick(false);
+                    isHit = false;
+                }
+
+                var a = new THREE.Vector3( -200, -400, 0);
+				camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
+//				camera.lookAt( scene.position );
+                camera.lookAt(a);
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
