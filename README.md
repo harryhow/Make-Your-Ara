@@ -7,8 +7,13 @@ The aim of the project is to create a interactive experience to feel how modular
 
 Your can play around through [here](goo.gl/ajJV1G).
 
+#### File Tress ####
 
-#### Libray We Use####
+/ara project files are under here
+
+rest of files, directories are from Three JS. 
+
+#### Libraies ####
 - [Three JS!](http://threejs.org/) Javascript 3D library
 
 
