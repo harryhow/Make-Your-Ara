@@ -7,7 +7,7 @@ The aim of the project is to create a interactive experience to feel how modular
 
 Your can play around through [here](goo.gl/ajJV1G).
 
-#### File Tress ####
+#### File Tree ####
 
 /ara project files are under here
 
